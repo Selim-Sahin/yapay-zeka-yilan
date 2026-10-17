@@ -16,6 +16,10 @@ from ai.environment import (
 
 
 class RuleBasedAgent:
+    # Sınıf değişkeni: her RuleBasedAgent nesnesi için aynıdır (C'deki static gibi).
+    # Kural tabanlı ajan her zaman sürüm 1 durumunu (11 sayı) kullanır.
+    state_version = 1
+
     def choose_action(self, state):
         """Durum listesine bakıp bir eylem seçer."""
         # Durum listesinin ilk üç elemanı (önde/sağda/solda tehlike) ile eylem

@@ -69,6 +69,5 @@ EVAL_GAMES = 20           # Her ölçümde kaç oyun oynansın
 EVAL_SEED = 1000          # Ölçüm oyunlarının seed'i (son karşılaştırmada kullanılan 0'dan farklı)
 
 MODELS_DIR = "models"
-BEST_MODEL_PATH = "models/best.pth"
-LAST_MODEL_PATH = "models/last.pth"
-TRAINING_CURVE_PATH = "assets/training_curve.png"
+ASSETS_DIR = "assets"
+BEST_MODEL_PATH = "models/best.pth"  # İlk eğitimin modeli; evaluate/play_ai için varsayılan

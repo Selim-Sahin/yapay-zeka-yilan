@@ -127,6 +127,40 @@ def test_environment_does_not_import_pygame():
     assert result.stdout.strip() == "False"
 
 
+def test_state_version_2_adds_three_area_values():
+    env = SnakeEnv(10, 10, rng=random.Random(0), state_version=2)
+    state = env.reset()
+    assert len(state) == env.state_size == STATE_SIZE + 3
+    assert state[:STATE_SIZE] == env.basic_state()  # İlk 11 sayı sürüm 1 ile aynı
+    assert state[STATE_SIZE:] == [1.0, 1.0, 1.0]   # Açık alanda her yön güvenli
+
+
+def test_reachable_area_is_zero_for_collision():
+    env = make_env()
+    env.reset()
+    env.game.snake = [(9, 5), (8, 5), (7, 5)]  # Önü duvar
+    assert env.reachable_area(env.next_head(ACTION_STRAIGHT), limit=3) == 0
+
+
+def test_reachable_area_detects_closed_pocket():
+    # 5x5 tahta. Sola giden 9 karelik yılan, gövdesiyle üstteki iki satırı kapatıyor:
+    #
+    #   y=0   .  .  .  .  .      Cep: y=0 satırının tamamı + (0, 1) ve (1, 1) = 7 kare
+    #   y=1   .  .  H  b  b      H: baş (2, 1), sola gidiyor
+    #   y=2   b  b  b  b  b      b: gövde
+    #   y=3   T  .  .  .  .      T: kuyruk (0, 3)
+    #
+    env = SnakeEnv(5, 5, rng=random.Random(0), state_version=2)
+    env.reset()
+    env.game.snake = [(2, 1), (3, 1), (4, 1), (4, 2), (3, 2), (2, 2), (1, 2), (0, 2), (0, 3)]
+    env.game.direction = config.LEFT
+
+    straight, right, left = env.reachable_area_features()
+    assert straight == 7 / 9  # Düz (1, 1): 7 karelik cep, yılanın boyundan (9) küçük
+    assert right == 7 / 9     # Sağa dönmek = yukarı (2, 0): aynı cep
+    assert left == 0.0        # Sola dönmek = aşağı (2, 2): gövde
+
+
 def test_rule_agent_avoids_danger():
     agent = RuleBasedAgent()
     # Önde ve sağda tehlike var, sağa gidiyor, yem sağda: tek güvenli yol sol.

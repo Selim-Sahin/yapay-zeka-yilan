@@ -33,7 +33,7 @@ def main():
     args = parser.parse_args()
 
     agent = make_agent(args.agent, args.model)
-    env = SnakeEnv()
+    env = SnakeEnv(state_version=agent.state_version)
 
     pygame.init()
     renderer = Renderer()

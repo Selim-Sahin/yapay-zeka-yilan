@@ -7,6 +7,8 @@ Ajan sadece `state` (sayı listesi) görür ve `action` (0, 1 veya 2) seçer.
 Ekran, piksel, klavye yoktur; bu yüzden eğitim pencere açmadan ve çok hızlı yapılır.
 """
 
+from collections import deque
+
 from snake import config
 from snake.game_logic import SnakeGame
 
@@ -18,7 +20,10 @@ ACTION_RIGHT = 1
 ACTION_LEFT = 2
 NUM_ACTIONS = 3
 
-STATE_SIZE = 11
+STATE_SIZE = 11  # Sürüm 1'in boyu (kural tabanlı ajan ve ilk DQN modeli)
+
+# Durum sürümleri ve boyları. Sürüm 2 = sürüm 1'in 11 sayısı + 3 adet "ulaşılabilir alan" değeri.
+STATE_SIZES = {1: STATE_SIZE, 2: STATE_SIZE + 3}
 
 # Durum listesinin bölümlerinin başladığı indeksler (bkz. get_state).
 # Yön ve yem bölümleri aynı sırayı kullanır: sol, sağ, yukarı, aşağı.
@@ -45,9 +50,11 @@ def turn(direction, action):
 class SnakeEnv:
     """SnakeGame'i yapay zekanın kullanabileceği bir ortama saran sınıf."""
 
-    def __init__(self, width=config.GRID_WIDTH, height=config.GRID_HEIGHT, rng=None):
+    def __init__(self, width=config.GRID_WIDTH, height=config.GRID_HEIGHT, rng=None, state_version=1):
         self.game = SnakeGame(width, height, rng)
         self.steps_since_food = 0
+        self.state_version = state_version
+        self.state_size = STATE_SIZES[state_version]
 
     def reset(self):
         """Yeni bir oyun başlatır ve ilk durumu döner."""
@@ -89,7 +96,58 @@ class SnakeEnv:
         return (head_x + dx, head_y + dy)
 
     def get_state(self):
-        """Oyunun durumunu 11 adet 0/1 değerinden oluşan bir listeye çevirir.
+        """Ajanın gördüğü durum listesini döner; içeriği state_version'a bağlıdır."""
+        state = self.basic_state()
+        if self.state_version >= 2:
+            state = state + self.reachable_area_features()  # İki listeyi uç uca ekler
+        return state
+
+    def reachable_area_features(self):
+        """Düz / sağ / sol hamlelerinin her biri için ulaşılabilir alan, 0 ile 1 arasında.
+
+        1.0: "o yöne gidersem önümde en az yılanın boyu kadar boş alan var", yani güvenli.
+        0.5: "sadece boyumun yarısı kadar alan var", yani muhtemelen kendimi bir cebe kapatıyorum.
+        0.0: "o kare zaten duvar ya da gövde".
+        """
+        limit = len(self.game.snake)
+        features = []
+        for action in (ACTION_STRAIGHT, ACTION_RIGHT, ACTION_LEFT):
+            area = self.reachable_area(self.next_head(action), limit)
+            features.append(area / limit)
+        return features
+
+    def reachable_area(self, start, limit):
+        """`start` karesine girildikten sonra kaç boş kareye ulaşılabilir? (En fazla `limit` sayılır.)
+
+        "Flood fill" (taşma doldurma): boya kovası gibi, başlangıç karesinden komşulara yayılıp
+        duvar ve gövdeye çarpmadan kaç kareye varılabildiğini sayar. Sayı `limit`'e ulaşınca
+        durur; böylece açık alanda bütün tahtayı gezmeye gerek kalmaz ve hızlı çalışır.
+        Hamleden sonra kuyruk bir kare çekileceği için kuyruğun son karesi boş sayılır
+        (is_collision ile aynı kural).
+        """
+        game = self.game
+        if game.is_collision(start):
+            return 0
+
+        # set (küme): "bu kare içinde mi?" sorusunu listedeki gibi tek tek bakmadan,
+        # çok hızlı cevaplar. C'de bunun için bir hash tablosu yazman gerekirdi.
+        blocked = set(game.snake[:-1])
+        visited = {start}
+        # deque burada kuyruk (queue) olarak kullanılıyor: sondan ekle, baştan al.
+        # Bu sıra "genişlik öncelikli arama" (BFS) demek.
+        queue = deque([start])
+        while queue and len(visited) < limit:
+            x, y = queue.popleft()
+            for dx, dy in CLOCKWISE:
+                neighbor = (x + dx, y + dy)
+                if neighbor in visited or neighbor in blocked or game.hits_wall(neighbor):
+                    continue
+                visited.add(neighbor)
+                queue.append(neighbor)
+        return min(len(visited), limit)
+
+    def basic_state(self):
+        """Oyunun durumunu 11 adet 0/1 değerinden oluşan bir listeye çevirir (sürüm 1).
 
         [0]  önde tehlike var mı      [3]  sola gidiyor     [7]  yem solda
         [1]  sağda tehlike var mı     [4]  sağa gidiyor     [8]  yem sağda

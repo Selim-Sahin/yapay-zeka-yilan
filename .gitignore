@@ -8,9 +8,10 @@ __pycache__/
 # Test ve araç önbellekleri
 .pytest_cache/
 
-# Eğitilmiş modeller: sadece en iyisi git'e girer
+# Eğitilmiş modeller: sadece her deneyin en iyisi git'e girer ("last" dosyaları girmez)
 models/*.pth
 !models/best.pth
+!models/best_*.pth
 
 # Eğitim sırasında üretilen geçici grafikler
 plots/

@@ -10,20 +10,39 @@ en iyi ödülün biraz indirimli hali". Ağın tahmini ile bu hedef arasındaki 
 (hata) küçüldükçe ajan daha iyi oynar.
 """
 
+import os
 import random
 from collections import deque
 
 import torch
 from torch import nn
 
-from ai.environment import NUM_ACTIONS
+from ai.environment import NUM_ACTIONS, STATE_SIZES
 from ai.model import QNetwork
 from snake import config
 
 
+def load_agent(path):
+    """Kaydedilmiş bir modeli, doğru durum sürümüyle birlikte yükler.
+
+    Yeni dosyalar {"state_version": ..., "weights": ...} sözlüğü olarak kaydedilir.
+    İlk eğitimden kalan models/best.pth ise sadece ağırlıkları içerir; onu sürüm 1 sayarız.
+    """
+    checkpoint = torch.load(path, weights_only=True)
+    if "state_version" in checkpoint:
+        agent = DQNAgent(state_version=checkpoint["state_version"])
+        agent.model.load_state_dict(checkpoint["weights"])
+    else:
+        agent = DQNAgent(state_version=1)
+        agent.model.load_state_dict(checkpoint)
+    return agent
+
+
 class DQNAgent:
-    def __init__(self, seed=None):
-        self.model = QNetwork()
+    def __init__(self, seed=None, state_version=1):
+        # Ajan hangi durum sürümünü görüyorsa ortam da onu üretmeli (bkz. evaluate.py).
+        self.state_version = state_version
+        self.model = QNetwork(STATE_SIZES[state_version])
         # Adam, ağırlıkları hatayı azaltacak yönde güncelleyen yöntem ("optimizer").
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.LEARNING_RATE)
         self.loss_function = nn.MSELoss()  # Hata = (tahmin - hedef)^2 ortalaması
@@ -113,7 +132,7 @@ class DQNAgent:
     # --- Kaydetme ---
 
     def save(self, path):
-        self.model.save(path)
-
-    def load(self, path):
-        self.model.load(path)
+        """Ağırlıkları ve durum sürümünü dosyaya yazar. Klasör yoksa önce oluşturur."""
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        checkpoint = {"state_version": self.state_version, "weights": self.model.state_dict()}
+        torch.save(checkpoint, path)

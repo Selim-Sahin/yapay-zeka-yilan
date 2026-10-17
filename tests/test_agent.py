@@ -4,9 +4,9 @@ import random
 
 import torch
 
-from ai.agent import DQNAgent
+from ai.agent import DQNAgent, load_agent
 from ai.environment import NUM_ACTIONS, STATE_SIZE, SnakeEnv
-from ai.evaluate import evaluate, make_agent
+from ai.evaluate import evaluate, make_agent, summarize
 from ai.model import QNetwork
 from ai.plot import moving_average, save_training_curve
 from snake import config
@@ -77,7 +77,37 @@ def test_save_and_load_give_same_outputs(tmp_path):
     assert torch.equal(agent.model(states), loaded.model(states))
 
 
+def test_state_version_2_model_has_14_inputs():
+    agent = DQNAgent(seed=0, state_version=2)
+    assert agent.model(torch.zeros((1, STATE_SIZE + 3))).shape == (1, NUM_ACTIONS)
+
+
+def test_save_and_load_keep_state_version(tmp_path):
+    path = str(tmp_path / "v2.pth")
+    DQNAgent(seed=0, state_version=2).save(path)
+    assert load_agent(path).state_version == 2
+
+
+def test_old_model_file_loads_as_version_1(tmp_path):
+    # İlk eğitimden kalan models/best.pth sadece ağırlıkları içeriyor (sürüm bilgisi yok).
+    path = str(tmp_path / "old.pth")
+    torch.save(QNetwork().state_dict(), path)
+    agent = load_agent(path)
+    assert agent.state_version == 1
+
+
+def test_summarize():
+    stats = summarize([10, 20, 30, 40])
+    assert stats["mean"] == 25
+    assert stats["median"] == 25
+    assert round(stats["std"], 4) == 12.9099
+    assert round(stats["sem"], 4) == round(12.9099 / 2, 4)  # std / karekök(4)
+
+
 def test_dqn_agent_works_with_evaluate():
+    # Sürüm 2 ajanı ile de: evaluate, ortamı ajanın durum sürümüne göre kurmalı.
+    scores = evaluate(DQNAgent(seed=0, state_version=2), num_games=1, seed=0)
+    assert len(scores) == 1
     # Eğitilmemiş ajan da oyunu sonuna kadar oynayabilmeli (adım sınırı sayesinde).
     scores = evaluate(DQNAgent(seed=0), num_games=2, seed=0)
     assert len(scores) == 2
