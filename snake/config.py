@@ -36,3 +36,16 @@ UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
+
+# --- Yapay zeka ortamı ayarları (ai/environment.py) ---
+
+# Ödüller: ajan bunları en büyük yapmaya çalışır.
+REWARD_FOOD = 10
+REWARD_DEATH = -10
+REWARD_STEP = 0
+
+# Yem yemeden en fazla (MAX_STEPS_PER_LENGTH * yılan boyu) adım atılabilir.
+# Bu sınır olmazsa ajan sonsuza kadar daire çizebilir ve oyun hiç bitmez.
+MAX_STEPS_PER_LENGTH = 100
+
+AI_FPS = 20  # play_ai.py'de ajanı izlerken oyun hızı

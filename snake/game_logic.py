@@ -83,7 +83,7 @@ class SnakeGame:
         dx, dy = self.direction
         new_head = (head_x + dx, head_y + dy)
 
-        if self.hits_wall(new_head):
+        if self.is_collision(new_head):
             self.game_over = True
             return
 
@@ -97,11 +97,17 @@ class SnakeGame:
         else:
             self.snake.pop()
 
-        # `self.snake[1:]` bir "slice": baş hariç listenin geri kalanı.
-        # Kontrolü kuyruk silindikten sonra yapıyoruz; böylece yılan, o an
-        # boşalan kuyruk karesine güvenle girebiliyor.
-        if new_head in self.snake[1:]:
-            self.game_over = True
+    def is_collision(self, position):
+        """Baş bir sonraki adımda bu kareye girerse ölür mü?
+
+        Duvar ya da gövde ise True döner. Kuyruğun son karesi sayılmaz:
+        yılan ilerlerken kuyruk o kareden çekilir, yani orası güvenlidir.
+        (Yem yenen adımda kuyruk çekilmez, ama yem zaten yılanın üstünde
+        olamayacağı için bu durum sonucu değiştirmez.)
+        """
+        # `self.snake[:-1]` bir "slice": son eleman (kuyruk) hariç listenin tamamı.
+        # C'deki gibi -1 "dizinin dışı" değil, "sondan birinci" demektir.
+        return self.hits_wall(position) or position in self.snake[:-1]
 
     def hits_wall(self, position):
         """Verilen kare tahtanın dışındaysa True döner."""

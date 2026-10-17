@@ -15,6 +15,9 @@ models/*.pth
 # Eğitim sırasında üretilen geçici grafikler
 plots/
 
+# Kişisel çalışma günlüğü (sadece yerelde tutulur)
+calisma_gunlugu.md
+
 # Editör ve işletim sistemi dosyaları
 .vscode/
 .idea/
