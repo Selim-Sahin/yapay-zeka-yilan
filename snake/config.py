@@ -22,6 +22,14 @@ BACKGROUND_COLOR = (30, 30, 30)
 SNAKE_HEAD_COLOR = (0, 220, 0)
 SNAKE_BODY_COLOR = (0, 150, 0)
 FOOD_COLOR = (220, 50, 50)
+TEXT_COLOR = (240, 240, 240)
+# Dördüncü sayı "alpha", yani saydamlık: 0 tamamen saydam, 255 tamamen opak.
+OVERLAY_COLOR = (0, 0, 0, 170)
+
+# Game Over ekranındaki yazılar
+TITLE_FONT_SIZE = 64
+TEXT_FONT_SIZE = 32
+TEXT_LINE_SPACING = 50  # Satırlar arasındaki dikey mesafe, piksel
 
 # Yönler: (dx, dy). Dikkat: ekranda y aşağı doğru artar, bu yüzden UP = -1.
 UP = (0, -1)
