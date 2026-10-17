@@ -49,3 +49,26 @@ REWARD_STEP = 0
 MAX_STEPS_PER_LENGTH = 100
 
 AI_FPS = 20  # play_ai.py'de ajanı izlerken oyun hızı
+
+# --- Öğrenen ajan (DQN) ayarları (ai/model.py, ai/agent.py, train.py) ---
+
+HIDDEN_SIZE = 256         # Sinir ağının gizli katmanındaki nöron sayısı
+LEARNING_RATE = 0.001     # Her eğitim adımında ağırlıkların ne kadar değişeceği
+GAMMA = 0.9               # Gelecekteki ödüllerin bugünkü değeri (0: sadece şimdi, 1: hepsi eşit)
+MEMORY_SIZE = 100_000     # Hatırlanan en fazla deneyim sayısı (`_` sadece okunabilirlik için)
+BATCH_SIZE = 1000         # Her oyun sonunda hafızadan rastgele seçilip öğrenilen deneyim sayısı
+
+# Keşif (exploration): ajan başta çoğunlukla rastgele oynar, zamanla öğrendiğine güvenir.
+EPSILON_START = 1.0       # İlk oyunda hamlelerin %100'ü rastgele
+EPSILON_MIN = 0.01        # En sonunda hamlelerin %1'i rastgele
+EPSILON_DECAY_GAMES = 200 # Bu kadar oyun boyunca rastgelelik düzenli olarak azalır
+
+TRAIN_MINUTES = 40        # Eğitimin süre sınırı
+EVAL_EVERY_GAMES = 50     # Kaç oyunda bir ajanın gerçek başarısı ölçülsün
+EVAL_GAMES = 20           # Her ölçümde kaç oyun oynansın
+EVAL_SEED = 1000          # Ölçüm oyunlarının seed'i (son karşılaştırmada kullanılan 0'dan farklı)
+
+MODELS_DIR = "models"
+BEST_MODEL_PATH = "models/best.pth"
+LAST_MODEL_PATH = "models/last.pth"
+TRAINING_CURVE_PATH = "assets/training_curve.png"

@@ -1,5 +1,6 @@
 """Ajanın oyunu oynamasını pencerede izlemek için. Çalıştırmak için:
     python play_ai.py --agent rule
+    python play_ai.py --agent dqn --model models/best.pth
 
 Oyun bitince R ile yeni oyun başlar, pencereyi kapatınca program biter.
 """
@@ -26,11 +27,12 @@ def handle_events(env):
 
 def main():
     parser = argparse.ArgumentParser(description="Ajanın oynayışını izle.")
-    parser.add_argument("--agent", default="rule", help="rule")
+    parser.add_argument("--agent", default="rule", help="rule veya dqn")
+    parser.add_argument("--model", default=config.BEST_MODEL_PATH, help="dqn için model dosyası")
     parser.add_argument("--fps", type=int, default=config.AI_FPS, help="oyun hızı")
     args = parser.parse_args()
 
-    agent = make_agent(args.agent)
+    agent = make_agent(args.agent, args.model)
     env = SnakeEnv()
 
     pygame.init()
