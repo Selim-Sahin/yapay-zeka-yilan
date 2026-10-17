@@ -1,0 +1,22 @@
+# Sanal ortam (her bilgisayarda yeniden oluşturulur)
+.venv/
+
+# Python'un derlenmiş ara dosyaları (C'deki .o dosyalarına benzer)
+__pycache__/
+*.py[cod]
+
+# Test ve araç önbellekleri
+.pytest_cache/
+
+# Eğitilmiş modeller: sadece en iyisi git'e girer
+models/*.pth
+!models/best.pth
+
+# Eğitim sırasında üretilen geçici grafikler
+plots/
+
+# Editör ve işletim sistemi dosyaları
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
