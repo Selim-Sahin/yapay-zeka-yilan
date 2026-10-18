@@ -71,3 +71,11 @@ EVAL_SEED = 1000          # Ölçüm oyunlarının seed'i (son karşılaştırma
 MODELS_DIR = "models"
 ASSETS_DIR = "assets"
 BEST_MODEL_PATH = "models/best.pth"  # İlk eğitimin modeli; evaluate/play_ai için varsayılan
+
+# --- Demo GIF ayarları (record_demo.py) ---
+
+DEMO_MODEL_PATH = "models/best_v2.pth"
+DEMO_OUTPUT_PATH = "assets/demo.gif"
+DEMO_MAX_FRAMES = 3000     # GIF'teki en fazla adım sayısı (dosya boyutunu sınırlar)
+DEMO_FPS = 40              # GIF'in hızı: play_ai.py'nin (AI_FPS) iki katı, bütün oyun ~1 dakika sürsün
+DEMO_GAME_OVER_FRAMES = 60 # Oyun biterse son kare bu kadar adım boyunca ekranda kalır
