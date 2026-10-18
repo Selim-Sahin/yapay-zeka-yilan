@@ -29,6 +29,7 @@ STATE_SIZES = {1: STATE_SIZE, 2: STATE_SIZE + 3}
 # Yön ve yem bölümleri aynı sırayı kullanır: sol, sağ, yukarı, aşağı.
 DIRECTION_START = 3
 FOOD_START = 7
+AREA_START = 11  # Sadece sürüm 2'de: düz / sağ / sol için ulaşılabilir alan
 STATE_DIRECTION_ORDER = [config.LEFT, config.RIGHT, config.UP, config.DOWN]
 
 # Saat yönünde sıralı yönler. Sağa dönmek listede bir ileri, sola dönmek bir geri gitmektir.

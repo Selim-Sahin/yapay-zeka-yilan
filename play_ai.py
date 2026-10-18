@@ -27,7 +27,7 @@ def handle_events(env):
 
 def main():
     parser = argparse.ArgumentParser(description="Ajanın oynayışını izle.")
-    parser.add_argument("--agent", default="rule", help="rule veya dqn")
+    parser.add_argument("--agent", default="rule", help="rule, rule_ff veya dqn")
     parser.add_argument("--model", default=config.BEST_MODEL_PATH, help="dqn için model dosyası")
     parser.add_argument("--fps", type=int, default=config.AI_FPS, help="oyun hızı")
     args = parser.parse_args()

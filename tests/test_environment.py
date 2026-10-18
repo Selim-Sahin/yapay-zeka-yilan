@@ -14,8 +14,8 @@ from ai.environment import (
     SnakeEnv,
     turn,
 )
-from ai.evaluate import evaluate
-from ai.rule_based_agent import RuleBasedAgent
+from ai.evaluate import evaluate, make_agent
+from ai.rule_based_agent import FloodFillRuleAgent, RuleBasedAgent
 from snake import config
 
 
@@ -173,6 +173,40 @@ def test_rule_agent_turns_toward_food():
     # Tehlike yok, sağa gidiyor, yem aşağıda: sağa dönmek (aşağı) yeme götürür.
     state = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1]
     assert agent.choose_action(state) == ACTION_RIGHT
+
+
+def test_flood_fill_rule_agent_prefers_larger_area_over_food():
+    agent = FloodFillRuleAgent()
+    # Tehlike yok, sağa gidiyor, yem aşağıda (sağa dönmek yeme götürür).
+    # Ama sağa dönmek yarım boyluk bir cebe giriyor; düz gitmek ise geniş alana açılıyor.
+    state = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1] + [1.0, 0.5, 0.3]
+    assert agent.choose_action(state) == ACTION_STRAIGHT
+
+
+def test_flood_fill_rule_agent_goes_toward_food_when_areas_are_equal():
+    agent = FloodFillRuleAgent()
+    # Açık alan: üç yön de 1.0. Bu durumda eski ajan gibi yeme doğru döner.
+    state = [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1] + [1.0, 1.0, 1.0]
+    assert agent.choose_action(state) == ACTION_RIGHT
+
+
+def test_flood_fill_rule_agent_goes_straight_when_every_move_is_fatal():
+    agent = FloodFillRuleAgent()
+    state = [1, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0] + [0.0, 0.0, 0.0]
+    assert agent.choose_action(state) == ACTION_STRAIGHT
+
+
+def test_flood_fill_rule_agent_uses_state_version_2():
+    agent = make_agent("rule_ff")
+    assert isinstance(agent, FloodFillRuleAgent)
+    assert agent.state_version == 2
+    assert RuleBasedAgent.state_version == 1  # Eski ajan değişmedi
+
+
+def test_flood_fill_rule_agent_plays_full_games():
+    scores = evaluate(FloodFillRuleAgent(), num_games=3, seed=1)
+    assert len(scores) == 3
+    assert sum(scores) > 0
 
 
 def test_rule_agent_plays_full_games():

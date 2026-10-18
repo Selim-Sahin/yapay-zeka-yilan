@@ -12,7 +12,7 @@ import random
 import statistics
 
 from ai.environment import SnakeEnv
-from ai.rule_based_agent import RuleBasedAgent
+from ai.rule_based_agent import FloodFillRuleAgent, RuleBasedAgent
 from snake import config
 
 
@@ -20,6 +20,8 @@ def make_agent(name, model_path=config.BEST_MODEL_PATH):
     """İsmi verilen ajanı oluşturur. "dqn" için eğitilmiş model dosyadan yüklenir."""
     if name == "rule":
         return RuleBasedAgent()
+    if name == "rule_ff":
+        return FloodFillRuleAgent()
     if name == "dqn":
         # torch'u sadece gerektiğinde içe aktarıyoruz; kural tabanlı ajan torch'suz da çalışsın.
         from ai.agent import load_agent
@@ -74,7 +76,7 @@ def main():
     # argparse, komut satırı argümanlarını okur. C'deki argc/argv'yi elle
     # ayrıştırmanın hazır ve kolay hali.
     parser = argparse.ArgumentParser(description="Ajanın ortalama skorunu ölçer.")
-    parser.add_argument("--agent", default="rule", help="rule veya dqn")
+    parser.add_argument("--agent", default="rule", help="rule, rule_ff veya dqn")
     parser.add_argument("--model", default=config.BEST_MODEL_PATH, help="dqn için model dosyası")
     parser.add_argument("--games", type=int, default=500)
     parser.add_argument("--seed", type=int, default=0)
