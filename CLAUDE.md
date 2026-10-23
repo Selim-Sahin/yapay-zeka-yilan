@@ -11,7 +11,7 @@ oynamayı öğrenen bir yapay zeka ajanı. Amaç: GitHub/LinkedIn portfolyo proj
 - Açıklamalar Türkçe ve sade olsun. Her satırı değil, önemli yerleri açıkla.
 
 ## Kod kuralları
-- Dil: Python 3.11+
+- Dil: Python 3.12
 - Değişken, fonksiyon, sınıf ve dosya adları **İngilizce** (`snake_body`, `move_snake()`).
 - Yorum satırları ve docstring'ler **Türkçe**.
 - PEP 8 stiline uy: `snake_case` fonksiyon/değişken, `PascalCase` sınıf, `UPPER_CASE` sabit.
